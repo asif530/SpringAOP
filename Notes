@@ -1,0 +1,42 @@
+1. You can have one of each request (GET,PUT,POST,PUT,DELETE) mapped to "" which is no url pattern on method level.They are
+represented by controller level mapping. In each requests class there is default mapping with "". If more than one is written without
+method level url pattern, a "java.lang.IllegalStateException: Ambiguous mapping."  will be thrown.
+
+2. @Before(value = "loggingPointCut() && args(id)",argNames = "joinPoint,id")
+       public void before1( JoinPoint joinPoint,Integer id){}
+   Use arguments. For this case the argument passed in with request. For other requests used another before advice.
+
+3. Spring AOP Doesn't Apply on Methods with Generic Type Return Values
+
+4.  If both class and method name do not matter use following: my.package..*(..)
+https://stackoverflow.com/questions/60474362/spring-aop-doesnt-apply-on-methods-with-generic-type-return-values
+
+5. Is it possible to have multiple pointcuts with different arguments in Spring AOP?
+    This answer is correct insofar as it is a functional workaround. The actual explanation for why argument binding like this does not work is that it would be ambiguous:
+    If both conditions in || would match, which value should be selected for binding? If you would compile this with the AspectJ compiler (not just use Spring AOP),
+    you would see a compile error: ambiguous binding of parameter(s) ... across '||' in pointcut. Spring AOP uses AspectJ pointcut matching, but does not compile aspects,
+    so you only notice during runtime that is simply does not work.
+    https://stackoverflow.com/questions/63248307/is-it-possible-to-have-multiple-pointcuts-with-different-arguments-in-spring-aop
+
+6. execution  vs within
+        execution - for matching method execution join points, this is the primary pointcut designator you will use when working with Spring AOP
+        within - limits matching to join points within certain types (simply the execution of a method declared within a matching type when using Spring AOP)
+    In other words, execution matches a method and within matches a type.
+    owever, execution is implemented, I think, with an interceptor for each matched method (a lot of objects), which within only needs one interceptor since it
+    matches the entire type (very little objects).
+    https://stackoverflow.com/questions/20816780/spring-pointcut-designators-differences-within-vs-execution
+
+7. Spring AOP: After vs AfterReturning vs AfterThrowing precedence
+    In the documentation there isn't nothing about the precedence or the order in which this two advices will execute. In fact they shouldn't be used togheter,
+        AfterReturning should be used when the method returns without exception
+        AfterThrowing should be used when the method throws an exception
+        After should be used instead of the previous two and needs to handle both cases.
+    So, I suggest you to get rid one of those and use make the flush call in AfterReturning just after the other code and if you need to execute this in case of an
+    exception add other advice with @AfterThrowing calling the same method. Or use only @After and distinct there the two possible cases.
+    https://stackoverflow.com/questions/61863727/spring-aop-after-vs-afterreturning-precedence
+
+8. Log the return value of a method using spring aop
+    https://stackoverflow.com/questions/18469703/log-the-return-value-of-a-method-using-spring-aop
+
+    Remaining: this,@annotation when declaring point cut
+               AfterThrowing,Around advice
